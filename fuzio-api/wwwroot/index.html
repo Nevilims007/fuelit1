@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fuzio - Smart Fuel & EV Assistance</title>
+    <link rel="icon" type="image/png" href="fuzio-logo.png">
+    <!-- MapLibre Map -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css"
+    />
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #071a3a;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+
+        header {
+            background: #2161ed;
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .fuzio-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 8px;
+    border-radius: 15px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+        .tagline {
+            margin-top: 5px;
+            font-size: 15px;
+        }
+
+        /* SCREENS */
+
+        .screen {
+            display: none;
+            padding: 28px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 32px;
+        }
+
+        h2 {
+            margin-top: 10px;
+        }
+
+        .subtitle {
+            color: #60708b;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        /* CARDS */
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        .service-card {
+            background: white;
+            border: 1px solid #dce3ef;
+            border-radius: 20px;
+            padding: 25px 15px;
+            min-height: 160px;
+            cursor: pointer;
+            text-align: left;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .service-card:hover {
+            border-color: #2161ed;
+            transform: translateY(-2px);
+        }
+
+        .service-icon {
+            font-size: 35px;
+        }
+
+        .service-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .service-description {
+            color: #60708b;
+            margin-top: 10px;
+        }
+
+        /* BUTTONS */
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 17px;
+            border: none;
+            border-radius: 15px;
+            background: #2161ed;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .secondary-btn {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #2161ed;
+            border-radius: 15px;
+            background: white;
+            color: #2161ed;
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .back-btn {
+            border: none;
+            background: none;
+            color: #2161ed;
+            font-size: 17px;
+            padding: 0;
+            margin-bottom: 25px;
+        }
+
+        /* LOCATION CARD */
+
+        .location-card {
+            background: #f3f6fd;
+            border-radius: 18px;
+            padding: 18px;
+            margin-top: 25px;
+        }
+
+        /* FUEL */
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 22px 10px;
+            border: 1px solid #d8e0ed;
+            border-radius: 18px;
+            background: white;
+            font-size: 18px;
+        }
+
+        .option-btn.selected {
+            border: 2px solid #2161ed;
+            background: #edf3ff;
+            color: #2161ed;
+        }
+
+        .amount-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .amount-btn {
+            padding: 20px;
+            border: 1px solid #d8e0ed;
+            border-radius: 18px;
+            background: white;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .amount-btn.selected {
+            border: 2px solid #2161ed;
+            background: #edf3ff;
+        }
+
+        .input-group {
+            margin-top: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #bdc8da;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .calculation-card,
+        .summary-card {
+            background: #f4f7fd;
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .calculation-row,
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .highlight {
+            color: #2161ed;
+            font-size: 21px;
+        }
+
+        /* MAP */
+
+        #locationMap {
+            width: 100%;
+            height: 350px;
+            border-radius: 18px;
+            margin-top: 20px;
+        }
+
+        #trackingMap {
+            width: 100%;
+            height: 380px;
+            border-radius: 18px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .map-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: #edf3ff;
+            color: #2161ed;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        /* AUTH */
+
+        .auth-box {
+            margin-top: 25px;
+        }
+
+        .auth-box input {
+            margin-bottom: 15px;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .link-btn {
+            border: none;
+            background: none;
+            color: #2161ed;
+            font-weight: bold;
+        }
+
+        /* HISTORY */
+
+        .order-card {
+            border: 1px solid #dce3ef;
+            border-radius: 15px;
+            padding: 18px;
+            margin-top: 15px;
+        }
+
+        .order-id {
+            color: #2161ed;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: #e8f7ed;
+            color: #16833b;
+            font-weight: bold;
+        }
+
+        @media(max-width:500px) {
+
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .screen {
+                padding: 22px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+
+<div class="logo">
+    <img
+        src="fuzio-logo.png"
+        alt="Fuzio Logo"
+        class="fuzio-logo">
+
+    <span>Fuzio</span>
+</div>        <div class="tagline">
+            Smart Fuel & EV Assistance
+        </div>
+
+        <div id="userTop"
+            onclick="openProfile()"
+            style="
+                margin-top:10px;
+                font-weight:bold;
+                display:none;
+                cursor:pointer;
+            ">
+        </div>
+        <button id="logoutBtn"
+                onclick="logoutUser()"
+                style="
+                display:none;
+                margin:10px auto 0;
+                padding:8px 18px;
+                border:none;
+                border-radius:10px;
+                background:white;
+                color:#2161ed;
+                font-weight:bold;
+                ">
+            LOGOUT
+        </button>
+    </header>
+
+
+    <!-- ================= HOME ================= -->
+
+    <section id="home" class="screen active">
+
+        <h1>What do you need?</h1>
+        <button class="primary-btn" onclick="openNearbyStations('fuel')">⛽ FIND REAL PETROL BUNKS</button>
+
+        <p class="subtitle">
+            Get emergency fuel assistance or find an EV charger near you.
+        </p>
+
+        <div class="service-grid">
+
+            <button class="service-card"
+                    onclick="openFuel()">
+
+                <div class="service-icon">⛽</div>
+
+                <div class="service-title">
+                    Fuel Assistance
+                </div>
+
+                <div class="service-description">
+                    Petrol / Diesel
+                </div>
+
+            </button>
+
+
+            <button class="service-card"
+                    onclick="openEV()">
+
+                <div class="service-icon">⚡</div>
+
+                <div class="service-title">
+                    EV Charging
+                </div>
+
+                <div class="service-description">
+                    Find nearby chargers
+                </div>
+
+            </button>
+
+        </div>
+
+
+        <div class="location-card">
+
+            <strong>📍 Your location</strong>
+
+            <p id="homeLocation">
+                Location not selected
+            </p>
+
+        </div>
+
+
+        <button class="primary-btn"
+                onclick="openLocationPicker()">
+
+            📍 PICK MY LOCATION
+
+        </button>
+
+
+        <button class="secondary-btn"
+                onclick="showHistory()">
+
+            📋 ORDER HISTORY
+
+        </button>
+
+
+        <button id="loginRegisterBtn"
+                class="secondary-btn"
+                onclick="showScreen('login')">
+
+            🔐 LOGIN / REGISTER
+
+        </button>
+
+    </section>
+
+
+
+    <!-- ================= LOGIN ================= -->
+
+    <section id="login" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('home')">
+
+            ← Back
+
+        </button>
+
+        <h1>Welcome to Fuzio 👋</h1>
+
+        <p class="subtitle">
+            Login securely using your mobile number.
+        </p>
+
+
+        <div class="auth-box">
+
+            <label>Mobile Number</label>
+
+            <input
+                id="loginPhone"
+                type="tel"
+                inputmode="numeric"
+                maxlength="15"
+                placeholder="Enter your mobile number">
+
+            <button id="sendOtpBtn"
+                    class="primary-btn"
+                    onclick="sendLoginOtp()">
+
+                📱 SEND OTP
+
+            </button>
+
+            <button class="secondary-btn"
+                    style="margin-top:12px;"
+                    onclick="openWhatsAppLogin()">
+                💬 LOGIN VIA WHATSAPP
+            </button>
+
+            <div id="whatsappLoginStatus"
+                 class="summary-card"
+                 style="display:none; margin-top:15px; text-align:center;">
+                ⏳ Waiting for login approval...
+            </div>
+
+            <div id="otpLoginFields" style="display:none; margin-top:18px;">
+                <label>OTP</label>
+                <input
+                    id="loginOtp"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="6"
+                    autocomplete="one-time-code"
+                    placeholder="Enter 6-digit OTP">
+
+                <p id="otpHelpText" class="subtitle"></p>
+
+                <button class="primary-btn"
+                        onclick="verifyLoginOtp()">
+                    ✅ VERIFY &amp; LOGIN
+                </button>
+            </div>
+
+        </div>
+
+
+        <div class="auth-switch">
+
+            Don't have an account?
+
+            <button class="link-btn"
+                    onclick="showScreen('register')">
+
+                REGISTER
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================= REGISTER ================= -->
+
+    <section id="register" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('login')">
+
+            ← Back
+
+        </button>
+
+        <h1>Create your Fuzio account</h1>
+
+
+        <div class="auth-box">
+
+            <label>Name</label>
+
+            <input
+                id="registerName"
+                type="text"
+                placeholder="Enter your name">
+
+
+            <label>Mobile Number</label>
+
+            <input
+                id="registerPhone"
+                type="tel"
+                inputmode="numeric"
+                maxlength="15"
+                placeholder="Enter your mobile number">
+
+                <label>Select Role</label>
+
+                <select id="registerRole"
+                        onchange="toggleDriverFields()"
+                        style="
+                            width:100%;
+                            padding:14px;
+                            border:1px solid #bdc8da;
+                            border-radius:10px;
+                            font-size:16px;
+                            margin-bottom:15px;
+                        ">
+                    <option value="Customer">Customer</option>
+                    <option value="Driver">Driver</option>
+                </select>
+                <div id="driverExtraFields" style="display:none;">
+
+                    <label>Vehicle Name</label>
+                    <input
+                        id="registerVehicleName"
+                        type="text"
+                        placeholder="Example: TVS XL">
+
+                    <label>Vehicle Number</label>
+                    <input
+                        id="registerVehicleNumber"
+                        type="text"
+                        placeholder="Example: TN 10 AB 1234">
+
+                </div>
+
+            <button id="sendRegisterOtpBtn"
+                    class="primary-btn"
+                    onclick="sendRegistrationOtp()">
+
+                📱 SEND REGISTRATION OTP
+
+            </button>
+
+            <button class="secondary-btn"
+                    style="margin-top:12px;"
+                    onclick="openWhatsAppVerification()">
+                💬 VERIFY VIA WHATSAPP
+            </button>
+
+            <p class="subtitle" style="margin-top:10px;">
+                Free manual verification through Fuzio WhatsApp.
+            </p>
+
+            <div id="whatsappApprovalStatus"
+                 class="summary-card"
+                 style="display:none; margin-top:15px; text-align:center;">
+                ⏳ Waiting for admin approval...
+            </div>
+
+            <div id="registrationOtpFields" style="display:none; margin-top:18px;">
+                <label>OTP</label>
+                <input
+                    id="registerOtp"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="6"
+                    autocomplete="one-time-code"
+                    placeholder="Enter 6-digit OTP">
+
+                <p class="subtitle">Your account will be created only after OTP verification.</p>
+
+                <button class="primary-btn"
+                        onclick="verifyRegistrationOtp()">
+                    ✅ VERIFY &amp; CREATE ACCOUNT
+                </button>
+            </div>
+
+        </div>
+
+
+        <div class="auth-switch">
+
+            Already have an account?
+
+            <button class="link-btn"
+                    onclick="showScreen('login')">
+
+                LOGIN
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================= FUEL ================= -->
+
+    <section id="fuel" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('home')">
+
+            ← Back
+
+        </button>
+
+        <h1>Fuel Assistance</h1>
+
+        <p class="subtitle">
+            Choose your fuel and required amount.
+        </p>
+
+
+        <h2>Fuel Type</h2>
+
+        <div class="option-grid">
+
+            <button id="petrolBtn"
+                    class="option-btn selected"
+                    onclick="selectFuel('Petrol')">
+
+                ⛽ Petrol
+
+            </button>
+
+
+            <button id="dieselBtn"
+                    class="option-btn"
+                    onclick="selectFuel('Diesel')">
+
+                🚚 Diesel
+
+            </button>
+
+        </div>
+
+
+        <h2>Select Amount</h2>
+
+        <div class="amount-grid">
+
+            <button id="amount100"
+                    class="amount-btn selected"
+                    onclick="selectAmount(100)">
+
+                ₹100
+
+            </button>
+
+            <button id="amount200"
+                    class="amount-btn"
+                    onclick="selectAmount(200)">
+
+                ₹200
+
+            </button>
+
+            <button id="amount500"
+                    class="amount-btn"
+                    onclick="selectAmount(500)">
+
+                ₹500
+
+            </button>
+
+            <button id="amount1000"
+                    class="amount-btn"
+                    onclick="selectAmount(1000)">
+
+                ₹1000
+
+            </button>
+
+        </div>
+
+
+        <h2>Custom Amount</h2>
+
+        <input
+            id="customAmount"
+            type="number"
+            min="1"
+            value="100"
+            oninput="customAmountChanged()">
+
+
+        <div class="calculation-card">
+
+            <div class="calculation-row">
+
+                <span>Fuel Price</span>
+
+                <strong id="fuelPrice">
+                    ₹111/L
+                </strong>
+
+            </div>
+
+
+            <div class="calculation-row">
+
+                <span>Selected Amount</span>
+
+                <strong id="selectedAmount">
+                    ₹100
+                </strong>
+
+            </div>
+
+
+            <div class="calculation-row highlight">
+
+                <span>Fuel Quantity</span>
+
+                <strong id="fuelQuantity">
+                    0.90 L
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <button class="primary-btn"
+                onclick="openLocationPicker()">
+
+            CONTINUE
+
+        </button>
+
+    </section>
+
+
+
+    <!-- ================= LOCATION ================= -->
+
+    <section id="location" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('fuel')">
+
+            ← Back
+
+        </button>
+
+        <h1>Select Location</h1>
+
+        <p class="subtitle">
+            Tap on the map or use your current GPS location.
+        </p>
+
+
+        <div id="locationMap"></div>
+
+
+        <button class="map-btn"
+                onclick="getMyLocation()">
+
+            📍 USE MY CURRENT LOCATION
+
+        </button>
+
+
+        <div class="location-card">
+
+            <strong>Selected Location</strong>
+
+            <p id="selectedLocation">
+                Location not selected
+            </p>
+
+        </div>
+
+
+        <button class="primary-btn"
+                onclick="continueToPayment()">
+
+            CONTINUE
+
+        </button>
+
+    </section>
+
+
+
+    <!-- ================= PAYMENT ================= -->
+
+    <section id="payment" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('location')">
+
+            ← Back
+
+        </button>
+
+        <h1>Payment</h1>
+
+        <p class="subtitle">
+            Choose your payment method.
+        </p>
+
+
+        <div class="option-grid">
+
+            <button id="cashBtn"
+                    class="option-btn selected"
+                    onclick="selectPayment('Cash')">
+
+                💵 Cash
+
+            </button>
+
+
+            <button id="upiBtn"
+                    class="option-btn"
+                    onclick="selectPayment('UPI')">
+
+                📱 UPI
+
+            </button>
+
+
+
+        </div>
+
+        <div id="upiBox"
+            class="summary-card"
+            style="display:none;text-align:center;">
+
+            <h2>UPI Payment</h2>
+
+            <p>Scan QR to pay</p>
+
+            <div style="
+                width:180px;
+                height:180px;
+                margin:20px auto;
+                background:white;
+                border:2px solid #2161ed;
+                border-radius:16px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:70px;
+            ">
+                ▦
+            </div>
+
+            <p id="upiAmount">
+                Amount: ₹130
+            </p>
+
+            <button class="secondary-btn"
+                    onclick="markUPIPaid()">
+                ✅ I HAVE PAID
+            </button>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <h2>Order Summary</h2>
+
+            <div class="summary-row">
+
+                <span>Fuel</span>
+
+                <strong id="summaryFuel">
+                    Petrol
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>Quantity</span>
+
+                <strong id="summaryQuantity">
+                    0.90 L
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>Fuel Amount</span>
+
+                <strong id="summaryAmount">
+                    ₹100
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>Assistance Fee</span>
+
+                <strong>
+                    ₹30
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row highlight">
+
+                <span>Total</span>
+
+                <strong id="summaryTotal">
+                    ₹130
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <button class="primary-btn"
+                onclick="placeOrder()">
+
+            🚚 PLACE ORDER
+
+        </button>
+
+    </section>
+
+
+
+    <!-- ================= SUCCESS ================= -->
+
+    <section id="success" class="screen">
+
+        <h1>Order Confirmed! 🎉</h1>
+
+        <p class="subtitle">
+            Your Fuzio assistance request has been created.
+        </p>
+
+
+        <div class="summary-card">
+
+            <h2 id="successOrderId">
+                FIT000000
+            </h2>
+
+
+            <div class="summary-row">
+
+                <span>Fuel</span>
+
+                <strong id="successFuel">
+                    Petrol
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>Quantity</span>
+
+                <strong id="successQuantity">
+                    0.90 L
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>Payment</span>
+
+                <strong id="successPayment">
+                    Cash
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row highlight">
+
+                <span>Total</span>
+
+                <strong id="successTotal">
+                    ₹130
+                </strong>
+
+            </div>
+
+
+            <div class="status">
+                Confirmed
+            </div>
+
+        </div>
+
+
+        <button class="primary-btn"
+                onclick="showScreen('home')">
+
+            BACK TO HOME
+
+        </button>
+        <button class="primary-btn"
+            onclick="openTracking()">
+
+            🚚 TRACK DRIVER
+
+        </button>
+
+
+        <button class="secondary-btn"
+                onclick="showHistory()">
+
+            VIEW HISTORY
+
+        </button>
+
+    </section>
+
+<!-- ================= DRIVER TRACKING ================= -->
+
+    <section id="tracking" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('success')">
+
+            ← Back
+
+        </button>
+
+        <h1>Delivery road route</h1>
+        <p id="roadRouteStatus" role="status">Road route not loaded yet.</p>
+        <button class="secondary-btn" onclick="FuzioRoadRoute.initialize()">Retry road route</button>
+        <p style="font-size:13px">Routing: <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a>, © OpenStreetMap contributors. <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">Report a map issue</a>. Pickup/delivery coordinates are sent to the public routing service. Driving time excludes live traffic and pickup delays. Prototype service, availability not guaranteed.</p>
+
+        <p class="subtitle">
+            Selected pickup bunk to your delivery location. Driver live GPS is not connected.
+        </p>
+
+
+        <div id="trackingMap"
+            style="
+            width:100%;
+            height:380px;
+            border-radius:18px;
+            margin-top:20px;
+            ">
+        </div>
+
+
+        <div class="location-card">
+
+            <div class="location-card">
+
+                <h2>Delivery Partner</h2>
+
+                <p>
+                    👤 <strong id="driverName">Waiting for driver...</strong>
+                </p>
+
+                <p>
+                    🛵 Vehicle:
+                    <span id="driverVehicle">-</span>
+                </p>
+
+                <p>
+                    🔢 Vehicle No:
+                    <span id="driverVehicleNumber">-</span>
+                </p>
+
+                <p>
+                    ⭐ Rating:
+                    <span id="driverRating">-</span>
+                </p>
+
+                <p>
+                    📞 Phone:
+                    <span id="driverPhone">-</span>
+                </p>
+                <p>
+                    Distance:
+                    <strong id="trackingDistance">
+                        Calculating...
+                    </strong>
+                </p>
+
+                <p>
+                    ETA:
+                    <strong id="trackingETA">
+                        Calculating...
+                    </strong>
+                </p>
+
+            </div>
+
+            <p>
+                <strong>Raju</strong>
+                <br>
+                Fuelit Delivery Partner
+            </p>
+
+            <p id="trackingStatus">
+                🚚 Driver is on the way
+            </p>
+
+            <p>
+                Distance:
+                <strong id="trackingDistance">
+                    Calculating...
+                </strong>
+            </p>
+
+            <p>
+                ETA:
+                <strong id="trackingETA">
+                    Calculating...
+                </strong>
+            </p>
+
+        </div>
+        <div class="summary-card">
+
+            <h2>Order Status</h2>
+
+            <div id="statusConfirmed">
+                ✅ Order Confirmed
+            </div>
+
+            <div id="statusAssigned">
+                ⏳ Driver Assigned
+            </div>
+
+            <div id="statusOnWay">
+                ⏳ On the Way
+            </div>
+
+            <div id="statusArrived">
+                ⏳ Driver Arrived
+            </div>
+
+            <div id="statusDelivered">
+                ⏳ Delivered
+            </div>
+
+        </div>
+
+
+
+
+                <button class="secondary-btn"
+                onclick="callDriver()">
+
+            📞 CALL DRIVER
+
+        </button>
+
+        <button class="secondary-btn"
+                onclick="cancelOrder()"
+                style="border-color:#d92d20;color:#d92d20;">
+
+            ❌ CANCEL ORDER
+
+        </button>
+
+        <button class="primary-btn"
+                onclick="completeDelivery()">
+
+            🔐 DELIVERY CONFIRMATION
+
+        </button>
+        
+
+    </section>
+
+    <!-- ================= EV ================= -->
+
+    <section id="ev" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('home')">
+
+            ← Back
+
+        </button>
+
+        <h1>EV Charging ⚡</h1>
+
+        <p class="subtitle">
+            Find charging assistance near your location.
+        </p>
+
+
+        <div id="evMap"
+             style="
+             height:350px;
+             border-radius:18px;
+             margin-top:20px;
+             ">
+        </div>
+
+
+        <div class="location-card">
+
+            <h2>EV Assistance</h2>
+
+            <p>
+                Use your location to identify nearby charging
+                points.
+            </p>
+
+        </div>
+
+
+        <button class="primary-btn"
+                onclick="getEVLocation()">
+
+            📍 FIND CHARGERS NEAR ME
+
+        </button>
+        <div id="chargerList"></div>
+
+    </section>
+
+    <!-- ================= EV BOOKING ================= -->
+
+    <section id="evBooking" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('ev')">
+
+            ← Back
+
+        </button>
+
+        <h1>Book EV Charger ⚡</h1>
+
+        <p class="subtitle">
+            Select your charging slot.
+        </p>
+
+
+        <div class="summary-card">
+
+            <h2 id="evStationName">
+                Charging Station
+            </h2>
+
+            <div class="summary-row">
+                <span>Charger Type</span>
+                <strong id="evChargerType">
+                    Fast Charger
+                </strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Price</span>
+                <strong id="evPrice">
+                    ₹20 / kWh
+                </strong>
+            </div>
+
+        </div>
+
+
+        <h2>Select Time Slot</h2>
+
+        <div class="amount-grid">
+
+            <button class="amount-btn"
+                    onclick="selectEVSlot('10:00 AM')">
+                10:00 AM
+            </button>
+
+            <button class="amount-btn"
+                    onclick="selectEVSlot('11:00 AM')">
+                11:00 AM
+            </button>
+
+            <button class="amount-btn"
+                    onclick="selectEVSlot('12:00 PM')">
+                12:00 PM
+            </button>
+
+            <button class="amount-btn"
+                    onclick="selectEVSlot('2:00 PM')">
+                2:00 PM
+            </button>
+
+        </div>
+
+
+        <div class="location-card">
+
+            <strong>Selected Slot</strong>
+
+            <p id="selectedEVSlot">
+                No slot selected
+            </p>
+
+        </div>
+
+
+        <button class="primary-btn"
+                onclick="confirmEVBooking()">
+
+            ⚡ CONFIRM BOOKING
+
+        </button>
+
+    </section>
+    <!-- ================= PROFILE ================= -->
+
+    <section id="profile" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('home')">
+
+            ← Back
+
+        </button>
+
+        <h1>My Profile 👤</h1>
+
+        <p class="subtitle">
+            Fuzio account information
+        </p>
+
+
+        <div class="summary-card">
+
+            <div class="summary-row">
+
+                <span>Name</span>
+
+                <strong id="profileName">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>Mobile Number</span>
+
+                <strong id="profilePhone">
+                    -
+                </strong>
+
+            </div>
+
+        </div>
+        <div class="summary-card">
+
+            <h2>Recent Activity</h2>
+
+            <div id="profileRecentActivity">
+                <p class="subtitle">
+                    Loading recent activity...
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="service-grid">
+
+            <div class="service-card">
+
+                <div class="service-icon">
+                    ⛽
+                </div>
+
+                <div class="service-title">
+                    Fuel Orders
+                </div>
+
+                <div class="service-description">
+
+                    <strong id="profileFuelOrders"
+                            style="font-size:30px;color:#2161ed;">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="service-card">
+
+                <div class="service-icon">
+                    ⚡
+                </div>
+
+                <div class="service-title">
+                    EV Bookings
+                </div>
+
+                <div class="service-description">
+
+                    <strong id="profileEVBookings"
+                            style="font-size:30px;color:#2161ed;">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button class="secondary-btn"
+                onclick="showHistory()">
+
+            📋 VIEW ORDER HISTORY
+
+        </button>
+
+
+        <button class="secondary-btn"
+                onclick="logoutUser()"
+                style="
+                    border-color:#d92d20;
+                    color:#d92d20;
+                ">
+
+            🚪 LOGOUT
+
+        </button>
+
+    </section>
+    <!-- ================= DRIVER DASHBOARD ================= -->
+
+    <section id="driverDashboard" class="screen">
+
+        <button class="back-btn"
+                onclick="logoutUser()">
+            ← Logout
+        </button>
+
+        <h1>Driver Dashboard 🚚</h1>
+
+        <p class="subtitle">
+            View and manage fuel delivery requests.
+        </p>
+
+        <div class="summary-card">
+            <h2>Driver Status</h2>
+
+            <p>
+                🟢 Online and available
+            </p>
+        </div>
+
+        <div class="summary-card">
+            <h2>Available Orders</h2>
+
+            <div id="driverOrderList">
+                <p class="subtitle">
+                    No available orders yet.
+                </p>
+            </div>
+        </div>
+        <div class="summary-card">
+            <h2>My Accepted Order</h2>
+
+            <div id="acceptedDriverOrder">
+                <p class="subtitle">
+                    No accepted order yet.
+                </p>
+            </div>
+        </div>
+
+    </section>
+    <!-- ================= HISTORY ================= -->
+
+    <section id="history" class="screen">
+
+        <button class="back-btn"
+                onclick="showScreen('home')">
+
+            ← Back
+
+        </button>
+
+        <h1>Order History</h1>
+
+            <div class="amount-grid" style="margin-bottom:20px;">
+
+                <button class="amount-btn"
+                        onclick="filterHistory('all')">
+                    ALL
+                </button>
+
+                <button class="amount-btn"
+                        onclick="filterHistory('fuel')">
+                    FUEL
+                </button>
+
+                <button class="amount-btn"
+                        onclick="filterHistory('ev')">
+                    EV
+                </button>
+
+                <button class="amount-btn"
+                        onclick="filterHistory('cancelled')">
+                    CANCELLED
+                </button>
+
+            </div>
+
+        <div id="historyList">
+
+            <p class="subtitle">
+                No orders yet.
+            </p>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+
+<!-- MapLibre -->
+
+<script
+    src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js">
+</script>
+
+
+<!-- Your JavaScript -->
+
+<div id="firebaseRecaptcha"></div>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+<script src="fuzio-maps.js?v=1"></script>
+<script src="pickup-flow.js?v=1"></script>
+<script src="cloud-config.js?v=1"></script>
+<script src="location-service.js?v=1"></script>
+<script src="verified-session.js?v=1"></script>
+<script src="fuelit.js?v=15"></script>
+<script src="onboarding.js?v=2"></script>
+<script src="nearby-stations.js?v=4"></script>
+<script src="road-routing.js?v=1"></script>
+<script src="delivery-pin.js?v=1"></script>
+
+</body>
+</html>
+

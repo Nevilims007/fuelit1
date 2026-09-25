@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+**/*.local.json
+**/*.env
+**/*.db
+**/*.db-*
+**/appsettings*.json

@@ -51,6 +51,9 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.MapGet("/health",()=>Results.Ok(new {status="ok"}));
 app.MapPhoneOtp();
 app.MapNearbyPlaces();
 
@@ -1564,4 +1567,3 @@ public record WhatsAppRegistrationRequest(
 public record AdminPinRequest(string Pin);
 
 public record WhatsAppLoginRequest(string Phone);
-
