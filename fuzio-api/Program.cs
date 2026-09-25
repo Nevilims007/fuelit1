@@ -216,7 +216,7 @@ using (var scope = app.Services.CreateScope())
 // TEST API
 // ======================================================
 
-app.MapGet("/", () =>
+app.MapGet("/api/health", () =>
 {
     return Results.Ok(new
     {
